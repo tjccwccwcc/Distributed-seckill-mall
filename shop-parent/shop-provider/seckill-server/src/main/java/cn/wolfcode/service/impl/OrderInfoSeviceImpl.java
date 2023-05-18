@@ -43,6 +43,7 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
     @Override
     @Transactional//保证原子性
     public OrderInfo doSeckill(String phone, SeckillProductVo seckillProductVo) {
+//        int i = 1/0;//模拟订单创建失败
         //4、扣减数据库库存
         int effectCount = seckillProductService.decrStockCount(seckillProductVo.getId());
         if (effectCount == 0){
@@ -64,6 +65,7 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
         return orderInfoMapper.find(orderNo);
     }
 
+
     private OrderInfo createOrderInfo(String phone, SeckillProductVo seckillProductVo) {
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(seckillProductVo, orderInfo);
@@ -76,5 +78,25 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
         orderInfo.setSeckillId(seckillProductVo.getId());//秒杀的Id
         orderInfoMapper.insert(orderInfo);
         return orderInfo;
+    }
+
+    @Override
+    @Transactional//原子性
+    public void cancelOrder(String orderNo) {
+        System.out.println("超时取消订单逻辑开始");
+        OrderInfo orderInfo = orderInfoMapper.find(orderNo);
+        //判断订单是否处于未付款状态
+        if (OrderInfo.STATUS_ARREARAGE.equals(orderInfo.getStatus())){
+            //修改订单状态
+            int effectCount = orderInfoMapper.updateCancelStatus(orderNo, OrderInfo.STATUS_TIMEOUT);
+            if (effectCount == 0){
+                return;//代表修改订单冲突了（比如支付线程成功支付），修改失败，直接返回
+            }
+            //真实库存回补
+            seckillProductService.incrStockCount(orderInfo.getSeckillId());
+            //预库存回补
+            seckillProductService.syncStockToRedis(orderInfo.getSeckillTime(), orderInfo.getSeckillId());
+        }
+        System.out.println("超时取消订单逻辑结束");
     }
 }

@@ -6,6 +6,8 @@ import cn.wolfcode.common.web.Result;
 import cn.wolfcode.common.web.anno.RequireLogin;
 import cn.wolfcode.domain.OrderInfo;
 import cn.wolfcode.domain.SeckillProductVo;
+import cn.wolfcode.mq.MQConstant;
+import cn.wolfcode.mq.OrderMessage;
 import cn.wolfcode.redis.SeckillRedisKey;
 import cn.wolfcode.service.IOrderInfoService;
 import cn.wolfcode.service.ISeckillProductService;
@@ -87,10 +89,16 @@ public class OrderInfoController {
         if (remainCount < 0){
             return Result.error(SeckillCodeMsg.SECKILL_STOCK_OVER);
         }
-        OrderInfo orderInfo = orderInfoService.doSeckill(phone, seckillProductVo);//保证原子性，写在一个方法里
-        //4、创建秒杀订单（保证原子性）
-        //5、扣减数据库库存（保证原子性）
-        return Result.success(orderInfo.getOrderNo());
+        //使用MQ方式异步下单
+        //发送MQ消息
+        //只是发送消息同步，但整体的流程被异步解构了（业务是异步的）
+        OrderMessage message = new OrderMessage(time, seckillId, token, Long.parseLong(phone));
+        rocketMQTemplate.syncSend(MQConstant.ORDER_PEDDING_TOPIC, message);
+        return Result.success("成功进入秒杀队列，请耐心等待结果");
+//        OrderInfo orderInfo = orderInfoService.doSeckill(phone, seckillProductVo);//保证原子性，写在一个方法里
+//        //4、创建秒杀订单（保证原子性）
+//        //5、扣减数据库库存（保证原子性）
+//        return Result.success(orderInfo.getOrderNo());
     }
     @RequestMapping("/find")
     @RequireLogin

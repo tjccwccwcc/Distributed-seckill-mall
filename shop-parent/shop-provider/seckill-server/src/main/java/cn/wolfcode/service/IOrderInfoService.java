@@ -32,4 +32,10 @@ public interface IOrderInfoService {
      * @return
      */
     OrderInfo findByOrderNo(String orderNo);
+
+    /**
+     * 根据订单判断是否超时，超时取消订单
+     * @param orderNo
+     */
+    void cancelOrder(String orderNo);
 }
