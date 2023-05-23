@@ -1,7 +1,9 @@
 package cn.wolfcode.service.impl;
 
 import cn.wolfcode.common.exception.BusinessException;
+import cn.wolfcode.common.web.Result;
 import cn.wolfcode.domain.OrderInfo;
+import cn.wolfcode.domain.PayVo;
 import cn.wolfcode.domain.SeckillProductVo;
 import cn.wolfcode.mapper.OrderInfoMapper;
 import cn.wolfcode.mapper.PayLogMapper;
@@ -10,12 +12,15 @@ import cn.wolfcode.redis.SeckillRedisKey;
 import cn.wolfcode.service.IOrderInfoService;
 import cn.wolfcode.service.ISeckillProductService;
 import cn.wolfcode.util.IdGenerateUtil;
+import cn.wolfcode.web.feign.PayFeignApi;
 import cn.wolfcode.web.msg.SeckillCodeMsg;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 
@@ -23,6 +28,7 @@ import java.util.Date;
  * Created by wolfcode-lanxw
  */
 @Service
+//@RestController
 public class OrderInfoSeviceImpl implements IOrderInfoService {
     @Autowired
     private ISeckillProductService seckillProductService;
@@ -30,6 +36,8 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Autowired
+    private PayFeignApi payFeignApi;
     @Autowired
     private PayLogMapper payLogMapper;
     @Autowired
@@ -98,5 +106,18 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
             seckillProductService.syncStockToRedis(orderInfo.getSeckillTime(), orderInfo.getSeckillId());
         }
         System.out.println("超时取消订单逻辑结束");
+    }
+
+    @Override
+    public Result<String> payOnline(String orderNo) {
+        //根据订单号查询订单对象
+        OrderInfo orderInfo = this.findByOrderNo(orderNo);
+        PayVo vo = new PayVo();
+        vo.setOutTradeNo(orderNo);//订单编号
+        vo.setTotalAmount(String.valueOf(orderInfo.getSeckillPrice()));//金额
+        vo.setSubject(orderInfo.getProductName());//主题
+        vo.setBody(orderInfo.getProductName());//详情
+        Result<String> result = payFeignApi.payOnline(vo);
+        return result;
     }
 }

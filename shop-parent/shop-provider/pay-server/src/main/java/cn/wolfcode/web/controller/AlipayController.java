@@ -28,4 +28,18 @@ public class AlipayController {
     private AlipayClient alipayClient;
     @Autowired
     private AlipayProperties alipayProperties;
+    @RequestMapping("/payOnline")
+    public Result<String> payOnline(@RequestBody PayVo vo) throws AlipayApiException {
+        //设置请求参数
+        AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+        alipayRequest.setReturnUrl(vo.getReturnUrl());
+        alipayRequest.setNotifyUrl(vo.getNotifyUrl());
+        alipayRequest.setBizContent("{\"out_trade_no\":\""+ vo.getOutTradeNo() +"\","
+                + "\"total_amount\":\""+ vo.getTotalAmount() +"\","
+                + "\"subject\":\""+ vo.getSubject() +"\","
+                + "\"body\":\""+ vo.getBody() +"\","
+                + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
+        String html = alipayClient.pageExecute(alipayRequest).getBody();
+        return Result.success(html);
+    }
 }
