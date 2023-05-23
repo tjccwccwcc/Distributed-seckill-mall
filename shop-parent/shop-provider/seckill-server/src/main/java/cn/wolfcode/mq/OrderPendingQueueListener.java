@@ -14,8 +14,8 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-@RocketMQMessageListener(consumerGroup = "penddingGroup", topic = MQConstant.ORDER_PEDDING_TOPIC)
-public class OrderPeddingQueueListener implements RocketMQListener<OrderMessage> {
+@RocketMQMessageListener(consumerGroup = "pendingGroup", topic = MQConstant.ORDER_PEDDING_TOPIC)
+public class OrderPendingQueueListener implements RocketMQListener<OrderMessage> {
     @Autowired
     private IOrderInfoService iOrderInfoService;
     @Autowired

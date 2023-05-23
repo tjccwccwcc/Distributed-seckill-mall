@@ -1,10 +1,12 @@
 package cn.wolfcode.mapper;
 import cn.wolfcode.domain.AccountTransaction;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by lanxw
  */
+@Service
 public interface AccountTransactionMapper {
     /**
      * 插入事务日志,用于幂等性控制

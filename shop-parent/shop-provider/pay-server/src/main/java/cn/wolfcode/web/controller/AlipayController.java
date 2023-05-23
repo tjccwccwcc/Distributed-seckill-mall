@@ -1,6 +1,7 @@
 package cn.wolfcode.web.controller;
 
 import cn.wolfcode.common.web.Result;
+import cn.wolfcode.config.AlipayConfig;
 import cn.wolfcode.config.AlipayProperties;
 import cn.wolfcode.domain.PayVo;
 import cn.wolfcode.domain.RefundVo;
@@ -41,5 +42,26 @@ public class AlipayController {
                 + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
         String html = alipayClient.pageExecute(alipayRequest).getBody();
         return Result.success(html);
+    }
+    @RequestMapping("/rsaCheckV1")
+    public Result<Boolean> rsaCheckV1(@RequestParam Map<String, String> params) throws AlipayApiException {
+        boolean result = AlipaySignature.rsaCheckV1(
+                params,
+                alipayProperties.getAlipayPublicKey(),
+                alipayProperties.getCharset(),
+                alipayProperties.getSignType()
+        );
+        return Result.success(result);
+    }
+    @RequestMapping("/refund")
+    public Result<Boolean> refund(@RequestBody RefundVo vo) throws AlipayApiException {
+        AlipayTradeRefundRequest alipayRequest = new AlipayTradeRefundRequest();
+        alipayRequest.setBizContent("{\"out_trade_no\":\""+ vo.getOutTradeNo() +"\","
+                + "\"trade_no\":\"\","
+                + "\"refund_amount\":\""+ vo.getRefundAmount() +"\","
+                + "\"refund_reason\":\""+ vo.getRefundReason() +"\","
+                + "\"out_request_no\":\"\"}");
+        AlipayTradeRefundResponse response = alipayClient.execute(alipayRequest);
+        return Result.success(response.isSuccess());
     }
 }

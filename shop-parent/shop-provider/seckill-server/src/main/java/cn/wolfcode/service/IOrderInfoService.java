@@ -46,4 +46,32 @@ public interface IOrderInfoService {
      * @return
      */
     Result<String> payOnline(String orderNo);
+
+    /**
+     * 修改订单支付状态
+     * @param orderNo
+     * @param status
+     * @param payType
+     * @return
+     */
+    int changePayStatue(String orderNo, Integer status, int payType);
+
+    /**
+     * 在线支付退款
+     * @param orderInfo
+     * @return
+     */
+    void refundOnline(OrderInfo orderInfo);
+
+    /**
+     * 积分支付
+     * @param orderNo
+     */
+    void payIntegral(String orderNo);
+
+    /**
+     * 积分支付退款
+     * @param orderInfo
+     */
+    void refundIntegral(OrderInfo orderInfo);
 }

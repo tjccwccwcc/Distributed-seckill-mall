@@ -55,7 +55,7 @@ public class OrderInfoController {
     public Result<String> doSeckill(Integer time, Long seckillId, HttpServletRequest request){
         //1、判断是否处于抢购时间
 //        SeckillProductVo seckillProductVo = seckillProductService.find(time, seckillId);
-        SeckillProductVo seckillProductVo = seckillProductService.findFromCache(time, seckillId);
+//        SeckillProductVo seckillProductVo = seckillProductService.findFromCache(time, seckillId);
 /*        boolean legalTime = DateUtil.isLegalTime(
                 seckillProductVo.getStartDate(), seckillProductVo.getTime());
         if (!legalTime){

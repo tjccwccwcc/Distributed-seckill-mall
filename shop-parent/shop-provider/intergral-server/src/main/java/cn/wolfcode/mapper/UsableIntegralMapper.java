@@ -1,10 +1,12 @@
 package cn.wolfcode.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by lanxw
  */
+@Service
 public interface UsableIntegralMapper {
     /**
      * 冻结用户积分金额
@@ -39,6 +41,7 @@ public interface UsableIntegralMapper {
      * 减少积分
      * @param userId
      * @param amount
+     * @return
      */
-    void decrIntergral(@Param("userId") Long userId, @Param("amount") Long amount);
+    int decrIntergral(@Param("userId") Long userId, @Param("amount") Long amount);
 }
