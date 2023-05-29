@@ -8,6 +8,7 @@ import cn.wolfcode.service.IUsableIntegralService;
 import cn.wolfcode.web.msg.IntergralCodeMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by lanxw
@@ -20,6 +21,7 @@ public class UsableIntegralServiceImpl implements IUsableIntegralService {
     private AccountTransactionMapper accountTransactionMapper;
 
     @Override
+    @Transactional
     public void decrIntegral(OperateIntergralVo vo) {
         int effectCount = usableIntegralMapper.decrIntergral(vo.getUserId(), vo.getValue());
         if (effectCount == 0){
