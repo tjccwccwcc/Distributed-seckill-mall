@@ -13,6 +13,7 @@ import cn.wolfcode.util.IdGenerateUtil;
 import cn.wolfcode.web.feign.IntegralFeignApi;
 import cn.wolfcode.web.feign.PayFeignApi;
 import cn.wolfcode.web.msg.SeckillCodeMsg;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wolfcode-lanxw
@@ -184,7 +186,7 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
     }
 
     @Override
-    @Transactional
+    @GlobalTransactional
     public void refundIntegral(OrderInfo orderInfo) {
         if (OrderInfo.STATUS_ACCOUNT_PAID.equals(orderInfo.getStatus())){
             //添加退款记录
@@ -211,6 +213,13 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
             if (effectCount == 0){//订单修改失败
                 throw new BusinessException(SeckillCodeMsg.REFUND_ERROR);
             }
+//            int i = 1/0;//测试异常情况
+            //undo_log测试
+//            try {
+//                TimeUnit.SECONDS.sleep(30);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }
