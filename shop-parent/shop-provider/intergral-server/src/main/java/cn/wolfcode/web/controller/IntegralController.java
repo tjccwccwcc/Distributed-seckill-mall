@@ -18,7 +18,8 @@ public class IntegralController {
     private IUsableIntegralService usableIntegralService;
     @RequestMapping("/decrIntegral")
     public Result decrIntegral(@RequestBody OperateIntergralVo vo) {
-        usableIntegralService.decrIntegral(vo);
+//        usableIntegralService.decrIntegral(vo);
+        usableIntegralService.decrIntegralTry(vo, null);//AOT会自动注入，因此设为null
         return Result.success();
     }
     @RequestMapping("/incrIntegral")

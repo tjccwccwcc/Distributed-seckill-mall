@@ -153,7 +153,7 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
     }
 
     @Override
-    @Transactional
+    @GlobalTransactional
     public void payIntegral(String orderNo) {
         OrderInfo orderInfo = this.findByOrderNo(orderNo);
         if (OrderInfo.STATUS_ARREARAGE.equals(orderInfo.getStatus())){
@@ -181,6 +181,7 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
             if (effectCount == 0){//订单修改失败
                 throw new BusinessException(SeckillCodeMsg.PAY_ERROR);
             }
+//            int i = 1/0;//测试异常
         }
         else throw new BusinessException(SeckillCodeMsg.PAY_STATUS_CHANGE);
     }
