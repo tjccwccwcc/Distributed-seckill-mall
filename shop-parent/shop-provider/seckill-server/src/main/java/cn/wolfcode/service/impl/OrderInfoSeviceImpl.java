@@ -13,6 +13,7 @@ import cn.wolfcode.util.IdGenerateUtil;
 import cn.wolfcode.web.feign.IntegralFeignApi;
 import cn.wolfcode.web.feign.PayFeignApi;
 import cn.wolfcode.web.msg.SeckillCodeMsg;
+import com.alibaba.fastjson.JSON;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,17 +65,22 @@ public class OrderInfoSeviceImpl implements IOrderInfoService {
         }
         //5、创建秒杀订单
         OrderInfo orderInfo = createOrderInfo(phone, seckillProductVo);
-        //在 Redis 设置 Set 集合，存储抢到秒杀商品的用户的手机号
-        //seckillOrderSet:12 ===> [13088889999,13066668888]
-        String orderSetKey = SeckillRedisKey.SECKILL_ORDER_SET.
-                getRealKey(String.valueOf(seckillProductVo.getId()));
-        redisTemplate.opsForSet().add(orderSetKey, phone);
+        //放到canal中做
+//        //在 Redis 设置 Set 集合，存储抢到秒杀商品的用户的手机号
+//        //seckillOrderSet:12 ===> [13088889999,13066668888]
+//        String orderSetKey = SeckillRedisKey.SECKILL_ORDER_SET.
+//                getRealKey(String.valueOf(seckillProductVo.getId()));
+//        redisTemplate.opsForSet().add(orderSetKey, phone);
         return orderInfo;
     }
 
     @Override
     public OrderInfo findByOrderNo(String orderNo) {
-        return orderInfoMapper.find(orderNo);
+        //从redis中查询
+        String orderHashKey = SeckillRedisKey.SECKILL_ORDER_HASH.getRealKey("");
+        String objStr = (String) redisTemplate.opsForHash().get(orderHashKey, orderNo);
+        return JSON.parseObject(objStr, OrderInfo.class);
+//        return orderInfoMapper.find(orderNo);
     }
 
 
